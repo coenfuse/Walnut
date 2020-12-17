@@ -1,0 +1,54 @@
+﻿  main.cpp
+C:\dev\Walnut\src\main.cpp(164,35): warning C4244: '+=': conversion from 'double' to 'unsigned int', possible loss of data
+C:\dev\Walnut\src\main.cpp(201,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(233,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(255,33): warning C4244: 'initializing': conversion from 'double' to 'unsigned short', possible loss of data
+C:\dev\Walnut\src\main.cpp(265,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(299,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(333,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(367,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(407,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(439,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(471,39): warning C4244: '+=': conversion from '_Rep' to 'unsigned int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\dev\Walnut\src\main.cpp(486,11): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+  Walnut.vcxproj -> C:\dev\Walnut\x64\Debug\Walnut.exe
