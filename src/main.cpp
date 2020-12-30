@@ -3,13 +3,14 @@
 #include<chrono>
 #include<fstream>
 #include <string>
+#include <set>
 
 class Test {
 
 	static unsigned int player_count;
 	static float global_avg;
 	const static unsigned int section_length;
-
+	static std::set<int> qmemory;				// Later replace this with CADS iteration
 	float m_score;
 
 private:
@@ -95,6 +96,7 @@ public:
 unsigned int Test::player_count = 0;
 float Test::global_avg = 0;
 const unsigned int Test::section_length = 10;
+std::set<int> Test::qmemory = { 0 }; 
 
 void Test::start() {
 	
@@ -211,9 +213,9 @@ void Test::report() {
 	unsigned int total_score = 0;
 
 	for (size_t i = 0; i < 9; i++) {
-		global_avg_time += results[i].avg_duration;
+		test_avg_time += results[i].avg_duration;
 		total_questions += results[i].questions;
-		total_score += results[i].score;
+		total_score     += results[i].score;
 	}
 
 	max_score = 2 * total_questions;
@@ -245,16 +247,6 @@ void Test::report() {
 		std::cout << "Your all time average is: " << prev_avg << " ms" << std::endl;
 		std::cout << "You slowed down by: " << improvement*(-1) << " ms, compared to your all time average calculation speed." << std::endl;
 	}
-
-	global_avg_time = global_avg_time / 9;	// Number of sections
-
-	std::cout << "\n\nFINAL REPORT CARD" << std::endl;
-	std::cout << "------------------" << std::endl;
-	std::cout << "You scored " << total_score << " out of " << max_score <<"."<< std::endl;
-	std::cout << "Your final percentage is: " << percentage <<" %"<< std::endl;
-
-	std::cout << "\n\nPress Enter to exit" << std::endl;
-	std::cin.get();
 }
 
 Test::m_stats Test::square_set() {
@@ -264,10 +256,21 @@ Test::m_stats Test::square_set() {
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand = rand() % 101;
+		unsigned short operand;
+		
+		while (true) {
+			operand = rand() % 101;
+			if (qmemory.find(operand) == qmemory.end()) {
+				qmemory.insert(operand);
+				break;
+			}
+		}
+		
 		unsigned short correct_answer = operand * operand;
 		unsigned short response = 0;
 		
@@ -297,10 +300,21 @@ Test::m_stats Test::perfect_root_set() {
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand = rand() % 101;		// Operand itself is the correct answer
+		unsigned short operand;		// Operand itself is the correct answer
+
+		while (true) {
+			operand = rand() % 101;
+			if (qmemory.find(operand) == qmemory.end()) {
+				qmemory.insert(operand);
+				break;
+			}
+		}
+
 		unsigned short response;
 
 		std::cout << "What is the square root of: " << operand * operand << " ?" << std::endl;
@@ -328,10 +342,21 @@ Test::m_stats Test::root_set(){
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand = rand() % 10001;
+		unsigned short operand;
+
+		while (true) {
+			operand = rand() % 10001;
+			if (qmemory.find(operand) == qmemory.end()) {
+				qmemory.insert(operand);
+				break;
+			}
+		}
+
 		unsigned short correct_answer = std::pow(operand, 0.5);
 		unsigned short response;
 
@@ -360,12 +385,29 @@ Test::m_stats Test::product_set() {
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
+		unsigned short operand_1, operand_2;
 
-		unsigned short operand_1 = rand() % 101;
-		unsigned short operand_2 = rand() % 101;
+		while (true) {
+			operand_1 = rand() % 101;
+			if (qmemory.find(operand_1) == qmemory.end()) {
+				qmemory.insert(operand_1);
+				break;
+			}
+		}
+
+		while (true) {
+			operand_2 = rand() % 101;
+			if (qmemory.find(operand_2) == qmemory.end()) {
+				qmemory.insert(operand_2);
+				break;
+			}
+		}
+
 		unsigned short correct_answer = operand_1 * operand_2;
 		unsigned short response;
 
@@ -395,11 +437,29 @@ Test::m_stats Test::sum_set(){
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand_1 = rand() % 10000;
-		unsigned short operand_2 = rand() % 10000;
+		unsigned short operand_1, operand_2;
+
+		while (true) {
+			operand_1 = rand() % 10000;
+			if (qmemory.find(operand_1) == qmemory.end()) {
+				qmemory.insert(operand_1);
+				break;
+			}
+		}
+
+		while (true) {
+			operand_2 = rand() % 10000;
+			if (qmemory.find(operand_2) == qmemory.end()) {
+				qmemory.insert(operand_2);
+				break;
+			}
+		}
+
 		unsigned int correct_answer = operand_1 + operand_2;
 		unsigned int response;
 
@@ -429,11 +489,29 @@ Test::m_stats Test::division_set() {
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand_1 = rand() % 10000;
-		unsigned short operand_2 = (rand() % 20 + 2);	// See note at the end of this method
+		unsigned short operand_1, operand_2;
+
+		while (true) {
+			operand_1 = rand() % 10000;
+			if (qmemory.find(operand_1) == qmemory.end()) {
+				qmemory.insert(operand_1);
+				break;
+			}
+		}
+
+		while (true) {
+			operand_2 = (rand() % 20 + 2);	// See note at the end of this method
+			if (qmemory.find(operand_2) == qmemory.end()) {
+				qmemory.insert(operand_2);
+				break;
+			}
+		}
+
 		unsigned int correct_answer = operand_1 / operand_2;
 		unsigned int response;
 
@@ -469,11 +547,29 @@ Test::m_stats Test::difference_set() {
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand_1 = rand() % 10000;
-		unsigned short operand_2 = rand() % 10000;
+		unsigned short operand_1,operand_2;
+
+		while (true) {
+			operand_1 = rand() % 10000;
+			if (qmemory.find(operand_1) == qmemory.end()) {
+				qmemory.insert(operand_1);
+				break;
+			}
+		}
+
+		while (true) {
+			operand_2 = rand() % 10000;
+			if (qmemory.find(operand_2) == qmemory.end()) {
+				qmemory.insert(operand_2);
+				break;
+			}
+		}
+
 		unsigned int correct_answer = operand_1 - operand_2;
 		unsigned int response;
 
@@ -502,10 +598,21 @@ Test::m_stats Test::cube_set() {
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand = rand() % 11;
+		unsigned short operand;
+
+		while (true) {
+			operand = rand() % 11;
+			if (qmemory.find(operand) == qmemory.end()) {
+				qmemory.insert(operand);
+				break;
+			}
+		}
+
 		unsigned short correct_answer = operand * operand * operand;
 		unsigned short response = 0;
 
@@ -535,10 +642,21 @@ Test::m_stats Test::cube_root_set() {
 	double score = 0;
 	unsigned int total_time_taken = 0;
 
+	qmemory.clear();
+
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
 		unsigned short operand = rand() % 11;		// Operand itself is the correct answer
+
+		while (true) {
+			operand = rand() % 11;
+			if (qmemory.find(operand) == qmemory.end()) {
+				qmemory.insert(operand);
+				break;
+			}
+		}
+
 		unsigned short response;
 
 		std::cout << "What is the cube root of: " << operand * operand * operand << " ?" << std::endl;
@@ -586,9 +704,9 @@ int main() {
 
 // DONE Create a bounds check for invalid input.
 // DONE Fix the progress record function. Do finishing and testing. Release V1.
+// DONE Made generated question fully random.
 
-// TODO Increase the random generation of questions. Make them truly random.
-// TODO Remove repetitive questions.
+// TODO Increase the variance betweem the randomly generated questions.
 // TODO Fix all the warnings. Data Type conversion verification.
 // TODO Find a way to improve the time inconsistency. The get_input() itself has its own overhead and it is getting added to user's time. This affects the efficiency of duration counter.
 // TODO Break the program into multiple files and store them appropriately.
