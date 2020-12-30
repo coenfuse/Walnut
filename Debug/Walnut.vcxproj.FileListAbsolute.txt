@@ -1,2 +1,0 @@
-C:\dev\Walnut\Debug\Walnut.exe
-C:\dev\Walnut\Debug\Walnut.pdb
