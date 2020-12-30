@@ -1,17 +1,23 @@
 #include <iostream>
-#include<time.h>
-#include<chrono>
-#include<fstream>
+#include <time.h>
+#include <chrono>
+#include <fstream>
 #include <string>
 #include <set>
+#include <thread> // std::this_thread::sleep_for
+#include <algorithm>
 
 class Test {
+
+	using time_precision = std::chrono::milliseconds;	// Global response duration counter senstivity
 
 	static unsigned int player_count;
 	static float global_avg;
 	const static unsigned int section_length;
 	static std::set<int> qmemory;				// Later replace this with CADS iteration
 	float m_score;
+
+	bool bot_active = false;						// Set this to true to active a bot that gets a right answer extremely rarely.
 
 private:
 
@@ -26,8 +32,19 @@ private:
 	int get_input() {
 		std::string input;
 		int fixed_val;
-		std::cin >> input;
-		
+
+		if (bot_active) {
+			// Extremely basic bot. Not even a bot actually.
+			input = std::to_string(rand() % 100);
+			std::this_thread::sleep_for(std::chrono::seconds(rand() % 10 + 2));
+		}
+		else {
+			std::cin >> input;
+			if (input == "X" || input == "x")
+				exit (-1);
+			//std::transform(input.begin(), input.end(), input.begin(), std::tolower);
+		}
+
 		try {
 			fixed_val = std::stoi(input);
 		}
@@ -280,7 +297,7 @@ Test::m_stats Test::square_set() {
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 		
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -323,7 +340,7 @@ Test::m_stats Test::perfect_root_set() {
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 		
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == operand)
@@ -366,7 +383,7 @@ Test::m_stats Test::root_set(){
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 		
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -417,7 +434,7 @@ Test::m_stats Test::product_set() {
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 	
 		if (response == correct_answer)
@@ -469,7 +486,7 @@ Test::m_stats Test::sum_set(){
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -521,7 +538,7 @@ Test::m_stats Test::division_set() {
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -579,7 +596,7 @@ Test::m_stats Test::difference_set() {
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -622,7 +639,7 @@ Test::m_stats Test::cube_set() {
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -665,7 +682,7 @@ Test::m_stats Test::cube_root_set() {
 		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		auto duration = std::chrono::duration_cast<time_precision>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == operand)
@@ -681,7 +698,7 @@ int main() {
 	
 	Test Test;
 
-	std::cout << "To start the test, press Enter" << std::endl;
+	std::cout << "To start the test, press Enter. Press \'X\' anywhere in the program to exit." << std::endl;
 	std::cin.get();
 
 	auto start = std::chrono::high_resolution_clock::now();
