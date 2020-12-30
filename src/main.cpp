@@ -2,15 +2,7 @@
 #include<time.h>
 #include<chrono>
 #include<fstream>
-
-// 1. - Fix the progress record function. Do finishing and testing. Release V1.
-// 2. - Break the program into multiple files and store them appropriately.
-// 3. - Restructure using templates if its okay.
-// 3. - Add more features to progress record function.
-// 4. - Add memory feature, the program will keep track of all the questions where
-// the answer wasn't right and will try to throw it next time.
-// 5. - Make prioprietary API for bots. Use polymorphism if you could.
-// 6. - Define bots and implement a small scale ecosystem to run the bots.
+#include <string>
 
 class Test {
 
@@ -18,11 +10,10 @@ class Test {
 	static float global_avg;
 	const static unsigned int section_length;
 
-	using duration_type = std::chrono::milliseconds;
-
 	float m_score;
 
 private:
+
 	struct m_stats {
 		unsigned short questions;
 		double score;
@@ -31,36 +22,52 @@ private:
 
 	m_stats results[9];
 
+	int get_input() {
+		std::string input;
+		int fixed_val;
+		std::cin >> input;
+		
+		try {
+			fixed_val = std::stoi(input);
+		}
+		catch (...) {
+			return 0;
+		}
+
+		return fixed_val;
+	}
+
 	int prev_rec(int new_val = 0) {
 		// Need excessive cleaning.
 		using namespace std;
 
-		fstream file("data.dat", std::ios::in);
+		fstream file("report.dat", std::ios::in);
 		if (file) {
 			// File exists
 			int current, counter = 0;
-			long long total = 0;
+			int total = 0;
 
-			fstream fin("data.dat", std::ios::in);
-			while (fin) {
-				fin >> current;
+			while (file >> current) {
 				total += current;
 				counter++;
 			}
-			fin.close();
+			
+			file.close();
+			fstream out("report.dat", std::ios::out | std::ios::app);
+			out << std::endl;
+			out << new_val;
+			out.close();
 
-			fstream fout("data.dat", std::ios::out | std::ios::app);
-			fout << new_val << std::endl;
-			fout.close();
-
+			if (counter == 0)
+				counter = 1;
 			return (total / counter);
 		}
 		else {
 			// File didn't existed
-			fstream fout("data.dat", std::ios::out);
-			fout << new_val;
-			fout.close();
-			return 0;
+			fstream new_file("report.dat", std::ios::out);
+			new_file << new_val;
+			new_file.close();
+			return -1;
 		}
 	}
 
@@ -198,14 +205,15 @@ void Test::report() {
 	std::cout << "Average time spend on each question: " << results[8].avg_duration << " ms (" << (results[8].avg_duration / 1000) << " seconds)" << std::endl;
 
 	// Final Score Calculation
-	unsigned int test_avg_time = 0;
+	int test_avg_time = 0;
+	unsigned int global_avg_time = 0;
 	unsigned int total_questions = 0;
 	unsigned int total_score = 0;
 
 	for (size_t i = 0; i < 9; i++) {
-		test_avg_time += results[i].avg_duration;
+		global_avg_time += results[i].avg_duration;
 		total_questions += results[i].questions;
-		total_score		+= results[i].score;
+		total_score += results[i].score;
 	}
 
 	max_score = 2 * total_questions;
@@ -213,16 +221,37 @@ void Test::report() {
 	test_avg_time = test_avg_time / 9;	// Number of sections
 
 	// Update and fetch previous record
-	int prev_avg = 0;
+	short prev_avg = 0;
 	prev_avg = prev_rec(test_avg_time);
+	if (prev_avg == -1)
+		prev_avg = 0;
+
+	int improvement = prev_avg - test_avg_time;
+
+	std::cout << "\n\nFINAL REPORT CARD" << std::endl;
+	std::cout << "------------------" << std::endl;
+	std::cout << "You scored " << total_score << " out of " << max_score << "." << std::endl;
+	std::cout << "Your final percentage is: " << percentage << " %" << std::endl;
+	std::cout << "Your average duration on each question is: " << test_avg_time << " ms" << std::endl;
+	
+	if (prev_avg == 0) {
+		std::cout << "Your all time average is: NULL" << std::endl;
+	}
+	else if (improvement > 0) {
+		std::cout << "Your all time average is: " << prev_avg <<" ms"<< std::endl;
+		std::cout << "You improved by: " << improvement << " ms, on your all time average calculation speed." << std::endl;
+	}
+	else {
+		std::cout << "Your all time average is: " << prev_avg << " ms" << std::endl;
+		std::cout << "You slowed down by: " << improvement*(-1) << " ms, compared to your all time average calculation speed." << std::endl;
+	}
+
+	global_avg_time = global_avg_time / 9;	// Number of sections
 
 	std::cout << "\n\nFINAL REPORT CARD" << std::endl;
 	std::cout << "------------------" << std::endl;
 	std::cout << "You scored " << total_score << " out of " << max_score <<"."<< std::endl;
 	std::cout << "Your final percentage is: " << percentage <<" %"<< std::endl;
-	std::cout << "Your average duration on each question is: " << test_avg_time << " ms" << std::endl;
-	std::cout << "Your previous average was: " << prev_avg << std::endl;
-	std::cout << "You have made an improvement of: " << ((prev_avg - test_avg_time)/1000) << " ms"<< std::endl;
 
 	std::cout << "\n\nPress Enter to exit" << std::endl;
 	std::cin.get();
@@ -245,10 +274,10 @@ Test::m_stats Test::square_set() {
 		std::cout << "What is the square of: " << operand << " ?" << std::endl;
 		
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 		
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -277,10 +306,10 @@ Test::m_stats Test::perfect_root_set() {
 		std::cout << "What is the square root of: " << operand * operand << " ?" << std::endl;
 		
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 		
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == operand)
@@ -309,10 +338,10 @@ Test::m_stats Test::root_set(){
 		std::cout << "What is the square root approx. of: " << operand << " ? (Round to nearest floor, ignore decimals)" << std::endl;
 		
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 		
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -343,10 +372,10 @@ Test::m_stats Test::product_set() {
 		std::cout << "What is the result of this expression: " << operand_1 << " x " << operand_2 <<" ?"<< std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 	
 		if (response == correct_answer)
@@ -377,10 +406,10 @@ Test::m_stats Test::sum_set(){
 		std::cout << "What is the result of this expression: " << operand_1 << " + " << operand_2 <<" ?"<< std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -411,10 +440,10 @@ Test::m_stats Test::division_set() {
 		std::cout << "What is the result of this expression: " << operand_1 << " / " << operand_2 << " ? (Round to nearest floor, ignore decimals)" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -451,10 +480,10 @@ Test::m_stats Test::difference_set() {
 		std::cout << "What is the result of this expression: " << operand_1 << " - " << operand_2 << " ?" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -483,10 +512,10 @@ Test::m_stats Test::cube_set() {
 		std::cout << "What is the cube of: " << operand << " ?" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == correct_answer)
@@ -515,10 +544,10 @@ Test::m_stats Test::cube_root_set() {
 		std::cout << "What is the cube root of: " << operand * operand * operand << " ?" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		std::cin >> response;
+		response = get_input();
 		auto end = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<duration_type>(end - start);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		total_time_taken += duration.count();
 
 		if (response == operand)
@@ -532,148 +561,39 @@ Test::m_stats Test::cube_root_set() {
 
 int main() {
 	
-	Test newTest;
+	Test Test;
 
 	std::cout << "To start the test, press Enter" << std::endl;
 	std::cin.get();
 
 	auto start = std::chrono::high_resolution_clock::now();
-	newTest.start();
+	Test.start();
 	auto end = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::minutes>(end - start);
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 	int time = duration.count();
-
+	
 	std::cout << "Press enter to see your result" << std::endl;
 	std::cin.get();
 
 	std::cout << "\n\nTest Duration: " << time << " minutes." << std::endl;
-	newTest.report();
-	
+	Test.report();
 
+	std::cout << "\n\nYour performance report is saved in report.dat"<<std::endl;
+	std::cout << "Press enter to exit";
+	std::cin.get();
 	return 0;
 }
 
-/*
-// A C++ Program to demonstrate the 
-// four file hacks every C/C++ must know 
+// DONE Create a bounds check for invalid input.
+// DONE Fix the progress record function. Do finishing and testing. Release V1.
 
-// Note that we are assuming that the files 
-// are present in the same file as the program 
-// before doing the below four hacks 
-#include<stdio.h> 
-#include<stdlib.h> 
-#include<stdbool.h> 
-
-// A Function to get the file size 
-unsigned long long int fileSize(const char* filename)
-{
-	// Open the file 
-	FILE* fh = fopen(filename, "rb");
-	fseek(fh, 0, SEEK_END);
-	unsigned long long int size = ftell(fh);
-	fclose(fh);
-
-	return (size);
-}
-
-// A Function to check if the file exists or not 
-bool fileExists(const char* fname)
-{
-	FILE* file;
-	if (file = fopen(fname, "r"))
-	{
-		fclose(file);
-		return (true);
-	}
-	return (false);
-}
-
-// Driver Program to test above functions 
-int main()
-{
-	printf("%llu Bytes\n", fileSize("Passwords.txt"));
-	printf("%llu Bytes\n", fileSize("Notes.docx"));
-
-	if (fileExists("OldData.txt") == true)
-		printf("The File exists\n");
-	else
-		printf("The File doen't exist\n");
-
-	rename("Videos", "English_Videos");
-	rename("Songs", "English_Songs");
-
-	remove("OldData.txt");
-	remove("Notes.docx");
-
-	if (fileExists("OldData.txt") == true)
-		printf("The File exists\n");
-	else
-		printf("The File doesn't exist\n");
-
-	return 0;
-}
-
-
-File Handling with C++ using fstream class object 
-To write the Content in File 
-Then to read the content of file
-#include <iostream> 
-
-fstream header file for ifstream, ofstream,
-   fstream classes
-#include <fstream> 
-
-using namespace std;
-
-// Driver Code 
-int main()
-{
-	// Creation of fstream class object 
-	fstream fio;
-
-	string line;
-
-	// by default openmode = ios::in|ios::out mode 
-	// Automatically overwrites the content of file, To append 
-	// the content, open in ios:app 
-	// fio.open("sample.txt", ios::in|ios::out|ios::app) 
-	// ios::trunc mode delete all conetent before open 
-	fio.open("sample.txt", ios::trunc | ios::out | ios::in);
-
-	// Execute a loop If file successfully Opened 
-	while (fio) {
-
-		// Read a Line from standard input 
-		getline(cin, line);
-
-		// Press -1 to exit 
-		if (line == "-1")
-			break;
-
-		// Write line in file 
-		fio << line << endl;
-	}
-
-	// Execute a loop untill EOF (End of File) 
-	// point read pointer at beginning of file 
-	fio.seekg(0, ios::beg);
-
-	while (fio) {
-
-		// Read a Line from File 
-		getline(fio, line);
-
-		// Print line in Console 
-		cout << line << endl;
-	}
-
-	// Close the file 
-	fio.close();
-
-	return 0;
-}
-
-
-
-
-*/
+// TODO Increase the random generation of questions. Make them truly random.
+// TODO Remove repetitive questions.
+// TODO Fix all the warnings. Data Type conversion verification.
+// TODO Find a way to improve the time inconsistency. The get_input() itself has its own overhead and it is getting added to user's time. This affects the efficiency of duration counter.
+// TODO Break the program into multiple files and store them appropriately.
+// TODO Restructure using templates if its okay.
+// TODO Add more features to progress record function
+// TODO Add memory feature, the program will keep track of all the questions where the answer wasn't right and will try to throw it next time.
+// TODO Make proprietary API for bots. Use polymorphism is possible.
+// TODO Define bots and implement a small scale ecosystem to run the bots.
