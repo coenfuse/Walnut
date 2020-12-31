@@ -17,7 +17,7 @@ class Test {
 	static std::set<int> qmemory;				// Later replace this with CADS iteration
 	float m_score;
 
-	bool bot_active = false;						// Set this to true to active a bot that gets a right answer extremely rarely.
+	bool bot_active = true;						// Set this to true to active a bot that gets a right answer extremely rarely.
 
 private:
 
