@@ -11,13 +11,17 @@ class Test {
 
 	using time_precision = std::chrono::milliseconds;	// Global response duration counter senstivity
 
+	const unsigned short bot_accuracy = 1;		// The lower, the better
+	const unsigned short bot_speed = 4;			// The lower, the faster (in seconds)
+	const unsigned short max_speed = 1;		    // The limit on the bot's speed. 0 is fastest
+
 	static unsigned int player_count;
 	static float global_avg;
 	const static unsigned int section_length;
 	static std::set<int> qmemory;				// Later replace this with CADS iteration
 	float m_score;
 
-	bool bot_active = false;						// Set this to true to active a bot that gets a right answer extremely rarely.
+	bool bot_active = true;						// Set this to true to active a bot that gets a right answer extremely rarely.
 
 private:
 
@@ -27,23 +31,39 @@ private:
 		unsigned int avg_duration;
 	};
 
+	enum class opcode {
+		sq,sqrt,psqrt,add,sub,mul,div,cb,cbrt,NONE
+	};
+
+	struct bot_message {
+		int operand_1;
+		int operand_2;
+		opcode operation;
+
+		bot_message() :operand_1(0), operand_2(0), operation(opcode::NONE) {}
+	};
+
 	m_stats results[9];
 
 	int get_input() {
 		std::string input;
 		int fixed_val;
 
-		if (bot_active) {
-			// Extremely basic bot. Not even a bot actually.
-			input = std::to_string(rand() % 100);
-			std::this_thread::sleep_for(std::chrono::seconds(rand() % 10 + 2));
-		}
-		else {
-			std::cin >> input;
-			if (input == "X" || input == "x")
-				exit (-1);
-			//std::transform(input.begin(), input.end(), input.begin(), std::tolower);
-		}
+		//if (bot_active) {
+		//	// Extremely basic bot. Not even a bot actually.
+		//	input = std::to_string(rand() % 100);
+		//	std::this_thread::sleep_for(std::chrono::seconds(rand() % 10 + 2));
+		//}
+		//else {
+		//	std::cin >> input;
+		//	if (input == "X" || input == "x")
+		//		exit (-1);
+		//	//std::transform(input.begin(), input.end(), input.begin(), std::tolower);
+		//}
+
+		std::cin >> input;
+		if (input == "X" || input == "x")
+			exit(-1);	// or this->~Test();
 
 		try {
 			fixed_val = std::stoi(input);
@@ -55,37 +75,314 @@ private:
 		return fixed_val;
 	}
 
+	int get_bot_input(bot_message* question){
+		
+		//Extremely basic bot bich.
+		// The logic of this bot is simple and is as follows:
+
+		/*
+		
+		const unsigned int accuracy = 1;     // 0 gives 100% accuracy
+		int guesses = 10000;
+
+		int correct = 10;
+		int lb = correct - accuracy;
+		int ub = correct + accuracy;
+		int aub = ub - lb;
+		if (aub == 0)
+			aub++;      // Otherwise an exception is thrown
+
+		float sum = 0.0f;
+		float mean = 0.0f;
+		float abs_accuracy = 0.0f;
+		float success_attempts = 0.0f;
+
+		//(value % 30 + 1985) is in the range 1985 to 2014
+
+		srand((unsigned int)time(NULL));
+
+		for (int i = 0; i < guesses; i++) {
+			int guess = (rand() % aub + lb);
+			if (guess == correct)
+				success_attempts++;
+			std::cout << guess << std::endl;
+			sum += guess;
+		}
+
+		mean = sum / guesses;
+		abs_accuracy = ((success_attempts/guesses)*100);
+
+		std::cout << "\nMean guess is: " << mean << std::endl;
+		std::cout << "Actual accuracy is: " << abs_accuracy << " %" << std::endl;
+
+		*/
+		
+		unsigned short delay = bot_speed;
+
+		if (question->operation != opcode::NONE) {
+
+			switch (question->operation)
+			{
+			case Test::opcode::sq: {
+
+				int correct_answer = question->operand_1 * question->operand_1;
+				
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+			}
+				break;
+
+			case Test::opcode::sqrt: {
+
+				int correct_answer = std::pow(question->operand_1, 0.5);
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+
+				return guess;
+
+			}
+				break;
+
+			case Test::opcode::psqrt: {
+
+				int correct_answer = std::pow(question->operand_1, 0.5);
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+
+			}
+				break;
+
+			case Test::opcode::add: {
+
+				int correct_answer = question->operand_1 + question->operand_2;
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+
+			}
+				break;
+			case Test::opcode::sub: {
+
+				int correct_answer = question->operand_1 - question->operand_2;
+				unsigned short delay = bot_speed;
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+
+			}
+				break;
+			case Test::opcode::mul: {
+
+				int correct_answer = question->operand_1 * question->operand_2;
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+
+			}
+				break;
+			case Test::opcode::div: {
+
+				int correct_answer = question->operand_1 / question->operand_2;
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+
+			}
+				break;
+			case Test::opcode::cb: {
+
+				int correct_answer = question->operand_1 * question->operand_1 * question->operand_1;
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+
+			}
+				break;
+			case Test::opcode::cbrt: {
+
+				int correct_answer = std::cbrt(question->operand_1);
+
+				int lb = correct_answer - bot_accuracy;		// Lower Bound
+				int ub = correct_answer + bot_accuracy;		// Upper Bound
+				int aub = ub - lb;							// Absolute Upper Bound
+				if (aub == 0)
+					aub++;
+
+				int guess = (rand() % aub + lb);
+				if (delay == 0)
+					delay++;
+				srand((unsigned int)time(NULL));
+				std::this_thread::sleep_for(std::chrono::seconds(rand() % delay + max_speed));
+
+				return guess;
+
+			}
+				break;
+			case Test::opcode::NONE: return 0;
+				break;
+			default: return -1;
+				break;
+			}
+
+		}
+
+	}
+
 	int prev_rec(int new_val = 0) {
 		// Need excessive cleaning.
 		using namespace std;
 
-		fstream file("report.dat", std::ios::in);
-		if (file) {
-			// File exists
-			int current, counter = 0;
-			int total = 0;
+		if (bot_active) {
+			fstream file("bot_report.greym", std::ios::in);
+			if (file) {
+				// File Exists
+				int current, counter = 0;
+				int total = 0;
+				
+				while (file >> current) {
+					total += current;
+					counter++;
+				}
 
-			while (file >> current) {
-				total += current;
-				counter++;
+				file.close();
+				fstream out("bot_report.greym", std::ios::out | std::ios::app);
+				out << std::endl;
+				out << new_val;
+				out.close();
+
+				if (counter == 0)
+					counter = 1;
+				return (total / counter);
 			}
-			
-			file.close();
-			fstream out("report.dat", std::ios::out | std::ios::app);
-			out << std::endl;
-			out << new_val;
-			out.close();
+			else {
+				// File didn't existed
+				fstream new_file("bot_report.greym", std::ios::out);
+				new_file << new_val;
+				new_file.close();
+				return -1;
+			}
 
-			if (counter == 0)
-				counter = 1;
-			return (total / counter);
 		}
 		else {
-			// File didn't existed
-			fstream new_file("report.dat", std::ios::out);
-			new_file << new_val;
-			new_file.close();
-			return -1;
+			fstream file("report.greym", std::ios::in);
+			if (file) {
+				// File exists
+				int current, counter = 0;
+				int total = 0;
+
+				while (file >> current) {
+					total += current;
+					counter++;
+				}
+
+				file.close();
+				fstream out("report.greym", std::ios::out | std::ios::app);
+				out << std::endl;
+				out << new_val;
+				out.close();
+
+				if (counter == 0)
+					counter = 1;
+				return (total / counter);
+			}
+			else {
+				// File didn't existed
+				fstream new_file("report.greym", std::ios::out);
+				new_file << new_val;
+				new_file.close();
+				return -1;
+			}
 		}
 	}
 
@@ -106,7 +403,9 @@ public:
 	Test() : m_score(0){}
 	~Test(){}
 	void start();
-	void report();
+	void report(unsigned short);
+	void activate_bot_mode() { bot_active = true; }
+	void deactivate_bot_mode() { bot_active = false; }
 
 };
 
@@ -131,11 +430,20 @@ void Test::start() {
 	results[7] = cube_set();
 	results[8] = cube_root_set();
 
+	if (bot_active) {
+		int test_avg_time = 0;
+		for (size_t i = 0; i < 9; i++) {
+			test_avg_time += results[i].avg_duration;
+		}
+		test_avg_time = test_avg_time / 9;	// Number of sections
+		prev_rec(test_avg_time);
+	}
+
 	std::cout << "\nTest has been finished" << std::endl;
 
 }
 
-void Test::report() {
+void Test::report(unsigned short total_duration_in_minutes) {
 
 	std::system("cls");
 
@@ -249,6 +557,7 @@ void Test::report() {
 
 	std::cout << "\n\nFINAL REPORT CARD" << std::endl;
 	std::cout << "------------------" << std::endl;
+	std::cout << "Total test duration: " << total_duration_in_minutes << " minutes" << std::endl;
 	std::cout << "You scored " << total_score << " out of " << max_score << "." << std::endl;
 	std::cout << "Your final percentage is: " << percentage << " %" << std::endl;
 	std::cout << "Your average duration on each question is: " << test_avg_time << " ms" << std::endl;
@@ -291,10 +600,24 @@ Test::m_stats Test::square_set() {
 		unsigned short correct_answer = operand * operand;
 		unsigned short response = 0;
 		
-		std::cout << "What is the square of: " << operand << " ?" << std::endl;
+		std::cout << "What is the square of: " << operand << " ? ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 		
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = operand;
+			question.operand_2 = 0;
+			question.operation = opcode::sq;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+		
 		auto end = std::chrono::high_resolution_clock::now();
 		
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -325,7 +648,7 @@ Test::m_stats Test::perfect_root_set() {
 		unsigned short operand;		// Operand itself is the correct answer
 
 		while (true) {
-			operand = rand() % 101;
+			operand = rand() % 101 + 1;
 			if (qmemory.find(operand) == qmemory.end()) {
 				qmemory.insert(operand);
 				break;
@@ -334,10 +657,24 @@ Test::m_stats Test::perfect_root_set() {
 
 		unsigned short response;
 
-		std::cout << "What is the square root of: " << operand * operand << " ?" << std::endl;
+		std::cout << "What is the square root of: " << operand * operand << " ? ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 		
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = std::pow(operand,2);
+			question.operand_2 = 0;
+			question.operation = opcode::psqrt;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 		
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -377,10 +714,24 @@ Test::m_stats Test::root_set(){
 		unsigned short correct_answer = std::pow(operand, 0.5);
 		unsigned short response;
 
-		std::cout << "What is the square root approx. of: " << operand << " ? (Round to nearest floor, ignore decimals)" << std::endl;
+		std::cout << "What is the square root approx. of: " << operand << " ? (Round to nearest floor, ignore decimals) ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 		
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = operand;
+			question.operand_2 = 0;
+			question.operation = opcode::sqrt;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 		
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -428,10 +779,24 @@ Test::m_stats Test::product_set() {
 		unsigned short correct_answer = operand_1 * operand_2;
 		unsigned short response;
 
-		std::cout << "What is the result of this expression: " << operand_1 << " x " << operand_2 <<" ?"<< std::endl;
+		std::cout << "What is the result of this expression: " << operand_1 << " x " << operand_2 << " ? ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = operand_1;
+			question.operand_2 = operand_2;
+			question.operation = opcode::mul;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -480,10 +845,24 @@ Test::m_stats Test::sum_set(){
 		unsigned int correct_answer = operand_1 + operand_2;
 		unsigned int response;
 
-		std::cout << "What is the result of this expression: " << operand_1 << " + " << operand_2 <<" ?"<< std::endl;
+		std::cout << "What is the result of this expression: " << operand_1 << " + " << operand_2 <<" ? ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = operand_1;
+			question.operand_2 = operand_2;
+			question.operation = opcode::add;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -532,10 +911,24 @@ Test::m_stats Test::division_set() {
 		unsigned int correct_answer = operand_1 / operand_2;
 		unsigned int response;
 
-		std::cout << "What is the result of this expression: " << operand_1 << " / " << operand_2 << " ? (Round to nearest floor, ignore decimals)" << std::endl;
+		std::cout << "What is the result of this expression: " << operand_1 << " / " << operand_2 << " ? (Round to nearest floor, ignore decimals)";
+		if (bot_active)
+			std::cout << " [BOT-MODE]" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = operand_1;
+			question.operand_2 = operand_2;
+			question.operation = opcode::div;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -590,10 +983,24 @@ Test::m_stats Test::difference_set() {
 		unsigned int correct_answer = operand_1 - operand_2;
 		unsigned int response;
 
-		std::cout << "What is the result of this expression: " << operand_1 << " - " << operand_2 << " ?" << std::endl;
+		std::cout << "What is the result of this expression: " << operand_1 << " - " << operand_2 << " ? ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = operand_1;
+			question.operand_2 = operand_2;
+			question.operation = opcode::sub;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -623,7 +1030,7 @@ Test::m_stats Test::cube_set() {
 		unsigned short operand;
 
 		while (true) {
-			operand = rand() % 11;
+			operand = (rand() % 10 + 1);
 			if (qmemory.find(operand) == qmemory.end()) {
 				qmemory.insert(operand);
 				break;
@@ -633,10 +1040,24 @@ Test::m_stats Test::cube_set() {
 		unsigned short correct_answer = operand * operand * operand;
 		unsigned short response = 0;
 
-		std::cout << "What is the cube of: " << operand << " ?" << std::endl;
+		std::cout << "What is the cube of: " << operand << " ? ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = operand;
+			question.operand_2 = 0;
+			question.operation = opcode::cb;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -664,10 +1085,10 @@ Test::m_stats Test::cube_root_set() {
 	while (questions_asked < section_length) {
 
 		srand((unsigned int)time(NULL));
-		unsigned short operand = rand() % 11;		// Operand itself is the correct answer
+		unsigned short operand;		// Operand itself is the correct answer
 
 		while (true) {
-			operand = rand() % 11;
+			operand = (rand() % 10 + 1);
 			if (qmemory.find(operand) == qmemory.end()) {
 				qmemory.insert(operand);
 				break;
@@ -676,10 +1097,24 @@ Test::m_stats Test::cube_root_set() {
 
 		unsigned short response;
 
-		std::cout << "What is the cube root of: " << operand * operand * operand << " ?" << std::endl;
+		std::cout << "What is the cube root of: " << operand * operand * operand << " ? ";
+		if (bot_active)
+			std::cout << "[BOT-MODE]" << std::endl;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		response = get_input();
+
+		if (bot_active) {
+			// I hope creating a question takes nanoseconds only. :/
+			bot_message question;
+			question.operand_1 = std::pow(operand,3);
+			question.operand_2 = 0;
+			question.operation = opcode::cbrt;
+			response = get_bot_input(&question);
+		}
+		else {
+			response = get_input();
+		}
+
 		auto end = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<time_precision>(end - start);
@@ -694,41 +1129,78 @@ Test::m_stats Test::cube_root_set() {
 	return { questions_asked, score, avg_time_taken };
 }
 
-int main() {
-	
-	Test Test;
+bool stop_bots = false;;
 
+void bot_loop() {
+	// This is what a thread will run in parallel.
+
+	Test Test;
+	while (!stop_bots) {
+		Test.activate_bot_mode();
+		Test.start();
+		//Test.report(1);
+	}
+}
+
+int main() {
+
+	/*
+	std::thread bot_thread(bot_loop);
+	std::cin.get();
+	stop_bots = true;
+	bot_thread.join();
+	*/
+
+	/**/
+
+	Test Test;
+	std::string bot_check = "";
+
+	std::cout << "Test environment has been created successfully." << std::endl;
+	std::cout << "To proceed in bot mode, type \'bot\' or press anything else to proceed in human mode" << std::endl;
+	std::cin >> bot_check;
+	
+	std::transform(bot_check.begin(), bot_check.end(), bot_check.begin(), std::tolower);
+	if (bot_check == "bot")
+		Test.activate_bot_mode();
+	else
+		Test.deactivate_bot_mode();
+
+	std::system("cls");
 	std::cout << "To start the test, press Enter. Press \'X\' anywhere in the program to exit." << std::endl;
 	std::cin.get();
 
 	auto start = std::chrono::high_resolution_clock::now();
 	Test.start();
 	auto end = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+	auto duration = std::chrono::duration_cast<std::chrono::minutes>(end - start);
 	int time = duration.count();
 	
 	std::cout << "Press enter to see your result" << std::endl;
 	std::cin.get();
 
 	std::cout << "\n\nTest Duration: " << time << " minutes." << std::endl;
-	Test.report();
+	Test.report(duration.count());
 
 	std::cout << "\n\nYour performance report is saved in report.dat"<<std::endl;
 	std::cout << "Press enter to exit";
 	std::cin.get();
+	/**/
+
 	return 0;
 }
 
 // DONE Create a bounds check for invalid input.
 // DONE Fix the progress record function. Do finishing and testing. Release V1.
 // DONE Made generated question fully random.
+// DONE Find a way to improve the time inconsistency. The get_input() itself has its own overhead and it is getting added to user's time. This affects the efficiency of duration counter.
+// Well it doesn't, the duration is in nanoseconds, its insignificant at current load.
+// DONE Make proprietary API for bots. Use polymorphism is possible.
+// DONE Define bots and implement a small scale ecosystem to run the bots.
+// IN-PROGRESS in separate branch. Break the program into multiple files and store them appropriately.
 
-// TODO Increase the variance betweem the randomly generated questions.
+// TODO Increase the variance betweem the randomly generated questions. (In sqrt_set())
 // TODO Fix all the warnings. Data Type conversion verification.
-// TODO Find a way to improve the time inconsistency. The get_input() itself has its own overhead and it is getting added to user's time. This affects the efficiency of duration counter.
-// TODO Break the program into multiple files and store them appropriately.
 // TODO Restructure using templates if its okay.
 // TODO Add more features to progress record function
 // TODO Add memory feature, the program will keep track of all the questions where the answer wasn't right and will try to throw it next time.
-// TODO Make proprietary API for bots. Use polymorphism is possible.
-// TODO Define bots and implement a small scale ecosystem to run the bots.

@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="report.greym" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
