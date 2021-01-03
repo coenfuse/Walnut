@@ -152,6 +152,14 @@
     <ClCompile Include="src\Dodo\dodo.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Test\sets\add_set.cpp" />
+    <ClCompile Include="src\Test\sets\cbrt_set.cpp" />
+    <ClCompile Include="src\Test\sets\cb_set.cpp" />
+    <ClCompile Include="src\Test\sets\div_mode.cpp" />
+    <ClCompile Include="src\Test\sets\mul_set.cpp" />
+    <ClCompile Include="src\Test\sets\psqrt_set.cpp" />
+    <ClCompile Include="src\Test\sets\sqrt_set.cpp" />
+    <ClCompile Include="src\Test\sets\sq_set.cpp" />
+    <ClCompile Include="src\Test\sets\sub_set.cpp" />
     <ClCompile Include="src\Test\Test.cpp" />
     <ClCompile Include="src\Walnut\walnut.cpp" />
     <ClCompile Include="src\Walnut\walnut.h" />
