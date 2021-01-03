@@ -37,6 +37,9 @@
     <ClCompile Include="src\Dodo\dodo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Test\sets\add_set.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Dodo\dodo.h">

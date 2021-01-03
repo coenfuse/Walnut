@@ -40,7 +40,7 @@ private:	// Walnut's utility section
 		Test();
 		~Test();
 		Test(Walnut::USER_TYPE TYPE);
-		std::set<Walnut::stats>* start();
+		std::set<Walnut::stats>* initiate();
 
 	private:	// Test's private attributes section
 
@@ -55,7 +55,7 @@ private:	// Walnut's utility section
 
 	private:	// Test's private methods section
 
-		void take_input(short*);
+		void get_input(short*);
 		void get_bot_input();
 
 	private:	// Test's question sets

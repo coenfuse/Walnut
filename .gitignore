@@ -21,3 +21,10 @@ bin/x64/Debug/Walnut.exe
 bin/x64/Debug/Walnut.ilk
 bin/x64/Debug/Walnut.pdb
 bin/x64/Debug/Walnut.pdb
+.vs/
+bin/
+*.ipch
+*.ipch
+*.ipch
+*.db
+.vs/Walnut/v16/.suo
