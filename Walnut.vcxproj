@@ -149,7 +149,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="data\file" />
+    <ClCompile Include="src\Dodo\dodo.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Test\Test.cpp" />
+    <ClCompile Include="src\Walnut\walnut.cpp" />
+    <ClCompile Include="src\Walnut\walnut.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Dodo\dodo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
