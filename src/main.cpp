@@ -7,9 +7,70 @@
 #include <thread> // std::this_thread::sleep_for
 #include <algorithm>
 
+class Stopwatch {
+	using time_stamp = std::chrono::time_point<std::chrono::steady_clock>;
+
+	time_stamp m_start;
+	time_stamp m_end;
+	bool m_ready;
+public:
+	enum class time_literals {
+		nanosec,microsec,millisec,sec,min
+	};
+	Stopwatch() :
+		m_start(std::chrono::high_resolution_clock::now()),
+		m_end(std::chrono::high_resolution_clock::now()),
+		m_ready(false)
+	{}
+	~Stopwatch(){}
+	void start() {
+		m_start = std::chrono::high_resolution_clock::now();
+		m_ready = false;
+	}
+	void stop() {
+		m_end = std::chrono::high_resolution_clock::now();
+		m_ready = true;
+	}
+	int get_time(time_literals type) {
+		if (m_ready) {
+			switch (type)
+			{
+			case Stopwatch::time_literals::nanosec: {
+				using local_time_stamp = std::chrono::duration<long long, std::nano>;
+				local_time_stamp duration = std::chrono::duration_cast<std::chrono::nanoseconds>(m_end - m_start);
+				return duration.count();
+			}
+												  break;
+			case Stopwatch::time_literals::microsec: {
+				auto duration = std::chrono::duration_cast<std::chrono::microseconds>(m_end - m_start);
+				return duration.count();
+			}
+												   break;
+			case Stopwatch::time_literals::millisec: {
+				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(m_end - m_start);
+				return duration.count();
+			}
+												   break;
+			case Stopwatch::time_literals::sec: {
+				auto duration = std::chrono::duration_cast<std::chrono::seconds>(m_end - m_start);
+				return duration.count();
+			}
+											  break;
+			case Stopwatch::time_literals::min: {
+				auto duration = std::chrono::duration_cast<std::chrono::minutes>(m_end - m_start);
+				return duration.count();
+			}
+			}
+		}
+		else
+			return -1;
+	};
+};
+
 class Test {
 
 	using time_precision = std::chrono::milliseconds;	// Global response duration counter senstivity
+	#define precision Stopwatch::time_literals::millisec
 
 	const unsigned short bot_accuracy = 1;		// The lower, the better
 	const unsigned short bot_speed = 4;			// The lower, the faster (in seconds)
@@ -21,6 +82,7 @@ class Test {
 	static std::set<int> qmemory;				// Later replace this with CADS iteration
 	float m_score;
 
+	Stopwatch Timer;
 	bool bot_active = true;						// Set this to true to active a bot that gets a right answer extremely rarely.
 
 private:
@@ -321,6 +383,7 @@ private:
 
 	int prev_rec(int new_val = 0) {
 		// Need excessive cleaning.
+		// TODO Fix double record appending in save file during bot mode
 		using namespace std;
 
 		if (bot_active) {
@@ -419,7 +482,7 @@ void Test::start() {
 	player_count++;
 
 	std::cout << "Starting Test..." << std::endl;
-
+	
 	results[0] = square_set();
 	results[1] = perfect_root_set();
 	results[2] = root_set();
@@ -604,7 +667,8 @@ Test::m_stats Test::square_set() {
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 		
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -618,10 +682,12 @@ Test::m_stats Test::square_set() {
 			response = get_input();
 		}
 		
-		auto end = std::chrono::high_resolution_clock::now();
-		
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
+
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == correct_answer)
 			score += 2;
@@ -661,7 +727,8 @@ Test::m_stats Test::perfect_root_set() {
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 		
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -675,10 +742,12 @@ Test::m_stats Test::perfect_root_set() {
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 		
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == operand)
 			score += 2;
@@ -718,7 +787,8 @@ Test::m_stats Test::root_set(){
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 		
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -732,10 +802,12 @@ Test::m_stats Test::root_set(){
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 		
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == correct_answer)
 			score += 2;
@@ -783,7 +855,8 @@ Test::m_stats Test::product_set() {
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -797,10 +870,12 @@ Test::m_stats Test::product_set() {
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 	
 		if (response == correct_answer)
 			score += 2;
@@ -849,7 +924,8 @@ Test::m_stats Test::sum_set(){
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -863,10 +939,12 @@ Test::m_stats Test::sum_set(){
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == correct_answer)
 			score += 2;
@@ -915,7 +993,8 @@ Test::m_stats Test::division_set() {
 		if (bot_active)
 			std::cout << " [BOT-MODE]" << std::endl;
 
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -929,10 +1008,12 @@ Test::m_stats Test::division_set() {
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == correct_answer)
 			score += 2;
@@ -987,7 +1068,8 @@ Test::m_stats Test::difference_set() {
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -1001,10 +1083,12 @@ Test::m_stats Test::difference_set() {
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == correct_answer)
 			score += 2;
@@ -1044,7 +1128,8 @@ Test::m_stats Test::cube_set() {
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -1058,10 +1143,12 @@ Test::m_stats Test::cube_set() {
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == correct_answer)
 			score += 2;
@@ -1101,7 +1188,8 @@ Test::m_stats Test::cube_root_set() {
 		if (bot_active)
 			std::cout << "[BOT-MODE]" << std::endl;
 
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
+		Timer.start();
 
 		if (bot_active) {
 			// I hope creating a question takes nanoseconds only. :/
@@ -1115,10 +1203,12 @@ Test::m_stats Test::cube_root_set() {
 			response = get_input();
 		}
 
-		auto end = std::chrono::high_resolution_clock::now();
+		//auto end = std::chrono::high_resolution_clock::now();
+		Timer.stop();
 
-		auto duration = std::chrono::duration_cast<time_precision>(end - start);
-		total_time_taken += duration.count();
+		//auto duration = std::chrono::duration_cast<time_precision>(end - start);
+		//total_time_taken += duration.count();
+		total_time_taken += Timer.get_time(precision);
 
 		if (response == operand)
 			score += 2;
